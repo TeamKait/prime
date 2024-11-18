@@ -106,7 +106,6 @@ namespace _38
                 worksheetCount = workbook.Sheets.Count;
 
                 worksheet = workbook.Sheets.Add();
-
                 if (data != null)
                 {
                     for (int i = 0; i < data.GetLength(0); i++)
@@ -116,14 +115,7 @@ namespace _38
                         for (int j = 0; j < data.GetLength(1); j++)
                         {
                             int colNum = j + 1;
-
-                            //set cell location that data needs to be written to
-                            //range = worksheet.Cells[rowNum, colNum];
-
-                            //set value of cell
-                            //range.Value = data[i,j];
-
-                            //set value of cell
+                            
                             worksheet.Cells[rowNum, colNum] = data[i, j];
                         }
                     }
@@ -137,6 +129,7 @@ namespace _38
             catch (Exception ex)
             {
                 string errMsg = "Error (WriteToExcel) - " + ex.Message;
+                Console.WriteLine(errMsg);
                 System.Diagnostics.Debug.WriteLine(errMsg);
             }
             finally
@@ -170,12 +163,47 @@ namespace _38
             Excel.Application xlApp = new Excel.Application();
             Excel.Workbook xlWorkbook = xlApp.Workbooks.Open(filename("2019.xlsx"));
             Console.WriteLine("Файл открыт");
-            Collection<Temperature> temperaturesFirst = new Collection<Temperature>();
-            Collection<Temperature> temperaturesSecond = new Collection<Temperature>();
-            Collection<Temperature> temperaturesThird = new Collection<Temperature>();
-            Collection<Temperature> temperaturesFourth = new Collection<Temperature>();
-            openSheetAndProcess(xlWorkbook, ref temperaturesFirst, 1);
-            temperaturesFirst.Count.Output("Count");
+            Collection<Temperature> temperatures = new Collection<Temperature>();
+            openSheetAndProcess(xlWorkbook, ref temperatures, 1);
+            openSheetAndProcess(xlWorkbook, ref temperatures, 2);
+            // openSheetAndProcess(xlWorkbook, ref temperatures, 3);
+            // openSheetAndProcess(xlWorkbook, ref temperatures, 4);
+            temperatures.Count.Output("Count");
+
+            dynamic[,] data = new dynamic[32, temperatures.Count + 2];
+            data[0, 0] = "Сравнение температур по датам четырех месяцев";
+
+
+            for (int i = 1; i <= 31; i++)
+            {
+                data[i, 0] = i;
+
+                foreach (Temperature temperature in temperatures)
+                {
+                    if (temperature.day == i)
+                    {
+                        int b = 1;
+                        while (data[i, b] != null)
+                        {
+                            b++;
+                        }
+                        data[i,b] = temperature.temp; 
+                    }
+                }
+            }
+            Console.WriteLine("Введите имя файла: ");
+            string file = Console.ReadLine();
+
+            try
+            {
+
+                ExcelExport(file + ".xlsx", data);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
             /*
             
             openSheetAndProcess(xlWorkbook, ref temperatures, 2);
@@ -187,16 +215,7 @@ namespace _38
             string file = Console.ReadLine();
             dynamic[,] data = new dynamic[32, temperatures.Count + 2];
             data[0, 0] = "Сравнение температур по датам четырех месяцев";
-            data[0, 1] = 1;
-            data[0, 2] = 2;
-            data[0, 3] = 3;
-            data[0, 4] = 4;
-
-            for (int i = 1; i <= 31; i++)
-            {
-                data[i, 0] = i;
-            }
-            ExcelExport(file + ".xlsx", data); */
+             */
         }
     }
 }
