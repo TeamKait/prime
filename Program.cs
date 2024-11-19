@@ -39,12 +39,12 @@ namespace _38
             int colCount = xlRange.Columns.Count;
 
             int j = 3;
-            Temperature currentTemp = new Temperature(0,0);
+            Temperature currentTemp = new Temperature(0, 0);
             Console.WriteLine("Начинаю парсинг");
             for (int i = 1; i <= rowCount; i++)
             {
-                
-                if (xlRange.Cells[i, 1] != null && xlRange.Cells[i, 1].Value2 != null) 
+
+                if (xlRange.Cells[i, 1] != null && xlRange.Cells[i, 1].Value2 != null)
                 {
                     try
                     {
@@ -62,9 +62,9 @@ namespace _38
                     {
                         Console.WriteLine("Т");
                     }
-                   
+
                 }
-                    
+
                 if (xlRange.Cells[i, j] != null && xlRange.Cells[i, j].Value2 != null)
                 {
                     try
@@ -110,7 +110,7 @@ namespace _38
                 worksheet = workbook.Sheets.Add();
                 worksheet.EnableSelection = Excel.XlEnableSelection.xlNoSelection;
 
-           
+
                 if (data != null)
                 {
                     for (int i = 0; i < data.GetLength(0); i++)
@@ -170,8 +170,8 @@ namespace _38
             Collection<Temperature> temperatures = new Collection<Temperature>();
             openSheetAndProcess(xlWorkbook, ref temperatures, 1);
             openSheetAndProcess(xlWorkbook, ref temperatures, 2);
-            openSheetAndProcess(xlWorkbook, ref temperatures, 3);
-            openSheetAndProcess(xlWorkbook, ref temperatures, 4);
+            //openSheetAndProcess(xlWorkbook, ref temperatures, 3);
+            //openSheetAndProcess(xlWorkbook, ref temperatures, 4);
             temperatures.Count.Output("Count");
 
             xlWorkbook.Close();
@@ -179,6 +179,7 @@ namespace _38
 
             dynamic[,] data = new dynamic[32, temperatures.Count + 2];
             data[0, 0] = "Сравнение температур по датам четырех месяцев";
+            data[0, 0] = "asdasdasd";
 
 
             for (int i = 1; i <= 31; i++)
@@ -194,10 +195,30 @@ namespace _38
                         {
                             b++;
                         }
-                        data[i,b] = temperature.temp; 
+                        data[i, b] = temperature.temp;
+
                     }
                 }
             }
+
+            int maxVal = Int32.MinValue;
+            for (int i = 1; i <= 31; i++)
+            {
+                int b = 1;
+                int sum = 0;
+                while (data[i, b] != null)
+                {
+                    sum+=data[i, b];
+                    b++;
+                }
+                if(b > maxVal)
+                {
+                    maxVal = b;
+                }
+                data[i, maxVal+1] = Math.Round((double)sum/(double)(b-1), 2);
+            }
+            data[0, maxVal + 1] = "Среднее значение за день";
+
             Console.WriteLine("Введите имя файла: ");
             string file = Console.ReadLine();
 
