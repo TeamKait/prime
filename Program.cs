@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Office.Interop.Excel;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -21,7 +22,7 @@ namespace _38
     }
     internal class Program
     {
-        static String _DIR = @"S:\ИСП211\Дерин Лющенко\Практика Учебная\Дерин\38";
+        static String _DIR = @"C:\Users\zadaa\Desktop\prime-main";
         static string filename(string name, string separator = @"\")
         {
             return _DIR + separator + name;
@@ -30,6 +31,8 @@ namespace _38
         {
             Console.WriteLine("Открываю лист номер " + sheet);
             Excel._Worksheet xlWorksheet = xlWorkbook.Sheets[sheet];
+            xlWorksheet.EnableSelection = Excel.XlEnableSelection.xlNoSelection;
+
 
             Excel.Range xlRange = xlWorksheet.UsedRange;
             int rowCount = xlRange.Rows.Count;
@@ -99,13 +102,15 @@ namespace _38
 
                 excelApp.DisplayAlerts = false;
 
-                excelApp.Visible = false;
 
                 workbook = excelApp.Workbooks.Add();
 
                 worksheetCount = workbook.Sheets.Count;
 
                 worksheet = workbook.Sheets.Add();
+                worksheet.EnableSelection = Excel.XlEnableSelection.xlNoSelection;
+
+           
                 if (data != null)
                 {
                     for (int i = 0; i < data.GetLength(0); i++)
@@ -115,7 +120,6 @@ namespace _38
                         for (int j = 0; j < data.GetLength(1); j++)
                         {
                             int colNum = j + 1;
-                            
                             worksheet.Cells[rowNum, colNum] = data[i, j];
                         }
                     }
@@ -123,7 +127,7 @@ namespace _38
 
                 workbook.SaveAs(filename(file), System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value, Excel.XlSaveAsAccessMode.xlNoChange, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value);
 
-                Console.WriteLine("Status: Complete. " + DateTime.Now.ToString("HH:mm:ss"));
+                Console.WriteLine("Сохранил файл " + file);
 
             }
             catch (Exception ex)
@@ -166,9 +170,12 @@ namespace _38
             Collection<Temperature> temperatures = new Collection<Temperature>();
             openSheetAndProcess(xlWorkbook, ref temperatures, 1);
             openSheetAndProcess(xlWorkbook, ref temperatures, 2);
-            // openSheetAndProcess(xlWorkbook, ref temperatures, 3);
-            // openSheetAndProcess(xlWorkbook, ref temperatures, 4);
+            openSheetAndProcess(xlWorkbook, ref temperatures, 3);
+            openSheetAndProcess(xlWorkbook, ref temperatures, 4);
             temperatures.Count.Output("Count");
+
+            xlWorkbook.Close();
+            xlApp.Quit();
 
             dynamic[,] data = new dynamic[32, temperatures.Count + 2];
             data[0, 0] = "Сравнение температур по датам четырех месяцев";
